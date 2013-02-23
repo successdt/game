@@ -1,6 +1,11 @@
 <div style="position: relative; width: 600px; height: 600px;">
- <canvas id="bg-canvas" width="600" height="600" style="position: absolute; left: 0; top: 0; z-index: 0;"></canvas>
- <canvas id="main-canvas" width="600" height="600" style="position: absolute; left: 0; top: 0; z-index: 1;"></canvas>
+	<canvas id="bg-canvas" width="600" height="600" style="position: absolute; left: 0; top: 0; z-index: 0;"></canvas>
+ 	<div class="background">
+		<div class="background-inner">
+			<?php echo $this->Html->image('image 134.png', array('id' => 'main-ship')) ?>
+		</div>
+ 	</div>
+ 	<canvas id="main-canvas" width="600" height="600" style="position: absolute; left: 0; top: 0; z-index: 2;"></canvas>
 <!--
  <canvas id="hawk-canvas" width="600" height="600" style="position: absolute; left: 0; top: 0; z-index: 2;"></canvas>
 -->
@@ -23,6 +28,8 @@
 	var heliRotateAngle = 180;
 	var bgPositionX = 0;
 	var bgPositionY = 0;
+	var keyPress = [];
+	var rocketId = 0;
 	//keycode
 	var Keys = {
 		BACKSPACE: 8,
@@ -75,31 +82,38 @@
 		setTimeout(gameLoop,sleepTime);
 	}
 	
-	//Cánh quạt quay
-	setInterval(function(){
-		$('.rotor').toggleClass('sprite');
-	}, 50)
 	
-	$(document).keydown(function(e){
-		switch(e.keyCode){
-			case Keys.LEFT_ARROW:
-				heliRotateAngle -= 5;
-				heliRotate(heliRotateAngle);
-				break;
-			case Keys.RIGHT_ARROW:
-				heliRotateAngle += 5;
-				heliRotate(heliRotateAngle);
-				break;
-			case Keys.UP_ARROW:
-				forward();
-				break;
-			case Keys.DOWN_ARROW:
-				backward();
-				break;
-			case Keys.SPACE:
-			break;
+	setInterval(function(){
+		//Cánh quạt quay
+		$('.rotor').toggleClass('sprite');
+		
+		//Kiểm tra nút được ấn
+		if (keyPress[Keys.UP_ARROW])
+			forward();
+		if (keyPress[Keys.DOWN_ARROW])
+			backward();
+		if (keyPress[Keys.LEFT_ARROW]){
+			heliRotateAngle -= 5;
+			heliRotate(heliRotateAngle);			
+		}
+		if (keyPress[Keys.RIGHT_ARROW]){
+			heliRotateAngle += 5;
+			heliRotate(heliRotateAngle);			
 		}
 
+	}, 50)
+	setInterval(function(){
+		if (keyPress[Keys.SPACE])
+			newRocket();		
+	}, 100);
+	
+	//Khi nút được nhấn
+	$(document).keydown(function(e){
+		keyPress[e.keyCode] = true;
+	});
+	//Khi thả nút ra
+	$(document).keyup(function(e){
+		keyPress[e.keyCode] = false;
 	});
 	
 	//xoay máy bay theo chiều nhất định
@@ -112,14 +126,58 @@
 	//Tiến về phía trước
 	function forward(){
 		var radianAngle = (heliRotateAngle - 90) * Math.PI / 180;
-		bgPositionY += Math.round(20 * Math.sin(radianAngle));
-		bgPositionX += Math.round(20 * Math.cos(radianAngle));
-		$('#bg-canvas').css('background-position', bgPositionX + 'px ' + bgPositionY + 'px');
+		bgPositionY += Math.round(10 * Math.sin(radianAngle));
+		bgPositionX += Math.round(10 * Math.cos(radianAngle));
+		updateBackground();
 	}
 	function backward(){
 		var radianAngle = (heliRotateAngle - 90) * Math.PI / 180;
-		bgPositionY -= Math.round(20 * Math.sin(radianAngle));
-		bgPositionX -= Math.round(20 * Math.cos(radianAngle));
-		$('#bg-canvas').css('background-position', bgPositionX + 'px ' + bgPositionY + 'px');		
+		bgPositionY -= Math.round(10 * Math.sin(radianAngle));
+		bgPositionX -= Math.round(10 * Math.cos(radianAngle));
+		updateBackground();	
+	}
+	function updateBackground(){
+		//Giới hạn map
+		if ((bgPositionY > 1200))
+			bgPositionY = 1200;
+		if ((bgPositionX > 1200))
+			bgPositionX = 1200;
+		if ((bgPositionY < -1200))
+			bgPositionY = -1200;
+		if ((bgPositionX < -1200))
+			bgPositionX = -1200;
+		$('.background-inner').css('left', -1200 + bgPositionX + 'px');
+		$('.background-inner').css('top', - 1200 + bgPositionY + 'px');
+//		$('#bg-canvas').css('background-position', bgPositionX + 'px ' + bgPositionY + 'px');		
+	}
+	function newRocket(){
+		var x = 1495 - bgPositionX;
+		var y = 1465 - bgPositionY;
+		var rocketAngle = 180 + heliRotateAngle;
+		var id = rocketId;
+		var lineSize = 0;
+		rocketId++;
+		
+		$('.background-inner').append('<div class="rocket" id="rocket' + id + '"></div>');
+		$('#rocket' + id).css('left',x + 'px').css('top',y + 'px');
+		$('#rocket' + id).css('-webkit-transform', 'rotate(' + rocketAngle + 'deg)');		
+		$('#rocket' + id).css('-moz-transform', 'rotate(' + rocketAngle + 'deg)');
+		$('#rocket' + id).css('-o-transform', 'rotate(' + rocketAngle + 'deg)');
+		
+		//di chuyển tên lửa
+		var interval = setInterval(function(){
+			var radianAngle = (rocketAngle + 90) * Math.PI / 180;
+			x -= Math.round(10 * Math.cos(radianAngle));
+			y -= Math.round(10 * Math.sin(radianAngle));
+			lineSize ++;
+			$('#rocket' + id).css('left',x + 'px').css('top',y + 'px');
+			if ((lineSize < 10) && (lineSize > 5))
+				$('#rocket' + id).removeClass('stage' + (lineSize - 6)).addClass('stage' + (lineSize - 5));
+			if ((x < 0) || (x > 3000) || (y < 0) || (y > 3000) || ((lineSize * 10) > 400)){
+ 				$('#rocket' + id).remove();
+				clearInterval(interval);
+			}			
+		}, 30);
+		
 	}
 <?php echo $this->Html->scriptEnd() ?>

@@ -1,7 +1,28 @@
 #bg-canvas{
+}
+.background{
+	width: 600px;
+	height: 600px;
+	position: absolute;
+	left: 0px;
+	top:0px;
+	z-index: 2;	
+	overflow: hidden;
+}
+.background-inner{
 	background-image: url("../img/image 85.jpg");
 	background-repeat: repeat;
-	background-position: 0px 0px;
+	width: 3000px;
+	height: 3000px;
+	position: absolute;
+	left: -1200px;
+	top:-1200px;
+	transition-duration: 200ms;
+}
+#main-ship{
+	position: absolute;
+	left: 1474px;
+	top: 1310px;
 	transition-duration: 500ms;
 }
 #hawk-wrapper{
@@ -38,4 +59,24 @@
 .rotor.sprite{
 	background-image: url("../img/rotor_sprite.png");
 	background-position: -191px 0px;
+}
+.rocket{
+	width: 12px;
+	height: 45px;
+	position: absolute;
+	background-image: url("../img/missile-sprite.png");
+	background-position: 0px 0px;
+	background-size: 200px 59px;
+}
+.rocket.stage1{
+	background-position: -12px 0px;
+}
+.rocket.stage2{
+	background-position: -26px 0px;
+}
+.rocket.stage3{
+	background-position: -36px 0px;
+}
+.rocket.stage4{
+	background-position: -48px 0px;
 }
