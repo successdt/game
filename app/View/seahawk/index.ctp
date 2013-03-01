@@ -2,7 +2,7 @@
 	<canvas id="bg-canvas" width="600" height="600" style="position: absolute; left: 0; top: 0; z-index: 0;"></canvas>
  	<div class="background">
 		<div class="background-inner">
-			<?php echo $this->Html->image('image 134.png', array('id' => 'main-ship')) ?>
+			<div class="main-ship"></div>
 		</div>
  	</div>
  	<canvas id="main-canvas" width="600" height="600" style="position: absolute; left: 0; top: 0; z-index: 2;"></canvas>
@@ -30,6 +30,7 @@
 	var bgPositionY = 0;
 	var keyPress = [];
 	var rocketId = 0;
+	var warshipId = 0;
 	//keycode
 	var Keys = {
 		BACKSPACE: 8,
@@ -82,7 +83,7 @@
 		setTimeout(gameLoop,sleepTime);
 	}
 	
-	
+	warship();
 	setInterval(function(){
 		//Cánh quạt quay
 		$('.rotor').toggleClass('sprite');
@@ -100,13 +101,16 @@
 			heliRotateAngle += 5;
 			heliRotate(heliRotateAngle);			
 		}
-
 	}, 50)
 	setInterval(function(){
 		if (keyPress[Keys.SPACE])
 			newRocket();		
 	}, 100);
 	
+	setInterval(function(){
+		$('.main-ship').toggleClass('case1');		
+	}, 1000);
+		
 	//Khi nút được nhấn
 	$(document).keydown(function(e){
 		keyPress[e.keyCode] = true;
@@ -150,9 +154,11 @@
 		$('.background-inner').css('top', - 1200 + bgPositionY + 'px');
 //		$('#bg-canvas').css('background-position', bgPositionX + 'px ' + bgPositionY + 'px');		
 	}
+	
+	//helicopter bắn rocket
 	function newRocket(){
 		var x = 1495 - bgPositionX;
-		var y = 1465 - bgPositionY;
+		var y = 1478 - bgPositionY;
 		var rocketAngle = 180 + heliRotateAngle;
 		var id = rocketId;
 		var lineSize = 0;
@@ -178,6 +184,42 @@
 				clearInterval(interval);
 			}			
 		}, 30);
+	}
+	
+	function warship(){
+		var x = 1200;
+		var y = 3000;
+		var angle = 180 * Math.atan((1495 - x) / (y - 1478)) / Math.PI;
+		var id = warshipId;
+		var isDestroyed = false;
 		
+		warshipId++;
+		$('.background-inner').append('<div class="warship" id="warship' + id + '"></div>');
+
+		$('#warship' + id).css('left',x + 'px').css('top',y + 'px');
+		$('#warship' + id).css('-webkit-transform', 'rotate(' + angle + 'deg)');		
+		$('#warship' + id).css('-moz-transform', 'rotate(' + angle + 'deg)');
+		$('#warship' + id).css('-o-transform', 'rotate(' + angle + 'deg)');
+
+		//di chuyển tàu
+		var interval = setInterval(function(){
+			var radianAngle = (angle + 90) * Math.PI / 180;
+			x -= Math.round(5 * Math.cos(radianAngle));
+			y -= Math.round(5 * Math.sin(radianAngle));
+			$('#warship' + id).css('left',x + 'px').css('top',y + 'px');
+			
+			//Nếu tới gần thì dừng lại và bắn đạn
+			
+			
+			if (Math.sqrt(Math.abs(x - 1495) * Math.abs(x - 1495) + Math.abs(y - 1478) * Math.abs(y - 1478)) < 150){
+				clearInterval(interval);
+			}
+			
+			//Nếu tàu bị phá hủy
+			if (isDestroyed || (x < 0) || (x > 3000) || (y < 0) || (y > 3000)){
+ 				$('#warship' + id).remove();
+				clearInterval(interval);
+			}
+		}, 50);
 	}
 <?php echo $this->Html->scriptEnd() ?>

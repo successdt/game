@@ -19,11 +19,16 @@
 	top:-1200px;
 	transition-duration: 200ms;
 }
-#main-ship{
+.main-ship{
 	position: absolute;
 	left: 1474px;
 	top: 1310px;
-	transition-duration: 500ms;
+	background: url('../img/main_ship.png') no-repeat;
+	width: 50px;
+	height: 273px;
+}
+.main-ship.case1{
+	background-position: -50px 0px;
 }
 #hawk-wrapper{
 	width: 600px;
@@ -79,4 +84,19 @@
 }
 .rocket.stage4{
 	background-position: -48px 0px;
+}
+.warship{
+	width: 42px;
+	height: 150px;
+	position: absolute;
+	background-image: url("../img/warship_sprite.png");
+	background-position: 0px 0px;
+}
+.warship.case1{
+	background-image: url("../img/warship_sprite.png");
+	background-position: -40px 0px;
+}
+.warship.case2{
+	background-image: url("../img/warship_sprite.png");
+	background-position: -80px 0px;
 }
